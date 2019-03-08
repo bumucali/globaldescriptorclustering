@@ -1,32 +1,11 @@
-import pandas
-from matplotlib import pyplot as plt
-from sklearn.cluster import KMeans
-from sklearn.cluster import AgglomerativeClustering
-from sklearn import manifold
-from sklearn.metrics import euclidean_distances
-from sklearn.decomposition import PCA
-
 if __name__ == '__main__':
 
     label_cluster = []
-    score_cluster = []
     true_pos = 0
     total_pos = 0
     true_neg = 0
-
-    descriptor_values = pandas.read_csv('/home/berkay/Desktop/EndDescriptors/esf/DescriptorValuesESF.csv')
-    descriptor_labels = pandas.read_csv('/home/berkay/Desktop/EndDescriptors/esf/ClusterResult2.csv')
-    descriptor_values = descriptor_values.drop(descriptor_values.columns[640], axis=1)
-    descriptor_labels = descriptor_labels.iloc[:, 3]
-
-    # mds = manifold.MDS(n_components=39, dissimilarity="euclidean")
-    # mds_descriptor = mds.fit(descriptor_values).embedding_
-
-    # k_means = KMeans(n_clusters=39, init='random')
-    # label_cluster = k_means.fit(descriptor_values).labels_
-    # score_cluster.append(k_means.fit(descriptor_values).score(descriptor_values))
-    clustering = AgglomerativeClustering(n_clusters=23)
-    label_cluster = clustering.fit(descriptor_values).labels_
+    descriptor_labels = [2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 3, 2, 3, 3, 3, 2]
+    label_cluster = [4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6]
     sample_size = range(len(label_cluster))
 
     for i in sample_size:
