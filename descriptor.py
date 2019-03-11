@@ -9,32 +9,34 @@ import cv2
 from sklearn.cluster import DBSCAN
 
 
-def hist_com(comparison_histogram):
+def hist_com(comparison_histogram, labels):
     array_length = range(len(comparison_histogram))
     true_pos = 0
     true_neg = 0
     false_neg = 0
     false_pos = 0
+    match_dist_arr = []
     for i in array_length:
         for j in array_length:
             hist_1 = comparison_histogram[i, :]
             hist_2 = comparison_histogram[j, :]
             hist_1 = np.float32(hist_1)
             hist_2 = np.float32(hist_2)
-            match_dist = cv2.compareHist(hist_1, hist_2, 3)
-            if (match_dist < 0.3) and (descriptor_labels[i] == descriptor_labels[j]):
+            match_dist = cv2.compareHist(hist_1, hist_2, cv2.HISTCMP_BHATTACHARYYA)
+            match_dist_arr.append(match_dist)
+            if (match_dist < 0.3) and (labels[i] == labels[j]):
                 true_pos = true_pos + 1
-            elif (match_dist >= 0.3) and (descriptor_labels[i] == descriptor_labels[j]):
+            elif (match_dist >= 0.3) and (labels[i] == labels[j]):
                 false_neg = false_neg + 1
-            elif (match_dist < 0.3) and (descriptor_labels[i] != descriptor_labels[j]):
+            elif (match_dist < 0.3) and (labels[i] != labels[j]):
                 false_pos = false_pos + 1
-            elif (match_dist > 0.3) and (descriptor_labels[i] != descriptor_labels[j]):
+            elif (match_dist > 0.3) and (labels[i] != labels[j]):
                 true_neg = true_neg + 1
 
     pre = true_pos / (true_pos + false_pos)
     rec = true_pos / (true_pos + false_neg)
-    f1_score = 2 * ((precision * recall) / (precision + recall))
-    return pre, rec, f1_score
+    f1_score = 2 * ((pre * rec) / (pre + rec))
+    return pre, rec, f1_score, match_dist_arr
 
 
 def score_cal(descriptor, cluster_label):
@@ -63,13 +65,15 @@ if __name__ == '__main__':
 
     label_cluster = []
     score_cluster = []
+    dist_arr = []
 
-    descriptor_values = pandas.read_csv('/home/berkay/Desktop/EndDescriptors/mesf/DescriptorValuesMESF.csv')
-    descriptor_labels = pandas.read_csv('/home/berkay/Desktop/EndDescriptors/mesf/ClusterResult2.csv')
-    descriptor_values = descriptor_values.drop(descriptor_values.columns[768], axis=1)
+    descriptor_values = pandas.read_csv('/home/berkay/Desktop/EndDescriptors/esf/DescriptorValuesESF.csv')
+    descriptor_labels = pandas.read_csv('/home/berkay/Desktop/EndDescriptors/esf/ClusterResult2.csv')
+    descriptor_values = descriptor_values.drop(descriptor_values.columns[640], axis=1)
     descriptor_labels = descriptor_labels.iloc[:, 3]
+    distance_pcl = pandas.read_csv('/home/berkay/ObjectRetreivalSegmentedGlobal/build/Distance.csv')
 
-    # mds = manifold.MDS(n_components=39, dissimilarity="euclidean")
+    # mds = manifold.MDS(n_components=23, dissimilarity="euclidean")
     # mds_descriptor = mds.fit(descriptor_values).embedding_
     # mds_descriptor = np.abs(mds_descriptor)
 
@@ -87,17 +91,25 @@ if __name__ == '__main__':
     # clustering = AgglomerativeClustering(n_clusters=39)
     # label_cluster = clustering.fit(mds_descriptor).labels_
 
-    db_scan = DBSCAN().fit(descriptor_values)
-    label_cluster = db_scan.labels_
-    n_clusters_ = len(set(label_cluster))
-    print('no. of clusters: ' + repr(n_clusters_))
+    # db_scan = DBSCAN(eps=3, min_samples=2).fit(components)
+    # label_cluster = db_scan.labels_
+    # n_clusters_ = len(set(label_cluster))
+    # print('no. of clusters: ' + repr(n_clusters_))
 
-    # descriptor_values = np.abs(descriptor_values.values)
+    descriptor_values = descriptor_values.values
+    descriptor_labels = descriptor_labels.values
+    descriptor_labels = descriptor_labels.astype(int)
+    distance_pcl = distance_pcl.iloc[:, 0]
+    distance_pcl = distance_pcl.values
+    distance_pcl = np.float32(distance_pcl)
 
-    # precision, recall, f_score = hist_com(descriptor_values)
-    precision, recall, f_score = score_cal(descriptor_labels, label_cluster)
+    precision, recall, f_score, dist_arr = hist_com(descriptor_values, descriptor_labels)
+    # precision, recall, f_score = score_cal(descriptor_labels, label_cluster)
+    dist_arr = np.asarray(dist_arr)
+    result = cv2.compareHist(dist_arr, distance_pcl, 3)
 
-    print('Precision: ' + repr(precision) + '\nRecall: ' + repr(recall) + '\nF-1 Score: ' + repr(f_score))
+    print('Precision: ' + repr(precision) + '\nRecall: ' + repr(recall) + '\nF-1 Score: ' + repr(f_score) + 'Result: '
+          + repr(result))
     print('\nEND')
 
 
