@@ -15,46 +15,48 @@ def hist_com(comparison_histogram, labels):
     true_neg = 0
     false_neg = 0
     false_pos = 0
-    match_dist_arr = []
     for i in array_length:
         for j in array_length:
-            hist_1 = comparison_histogram[i, :]
-            hist_2 = comparison_histogram[j, :]
-            hist_1 = np.float32(hist_1)
-            hist_2 = np.float32(hist_2)
+            hist_1 = np.float32(comparison_histogram[i, :])
+            hist_2 = np.float32(comparison_histogram[j, :])
             match_dist = cv2.compareHist(hist_1, hist_2, cv2.HISTCMP_BHATTACHARYYA)
-            match_dist_arr.append(match_dist)
-            if (match_dist < 0.3) and (labels[i] == labels[j]):
+            if match_dist < 0.3:
+                evaluator = True
+            else:
+                evaluator = False
+            if (labels[i] == labels[j]) and (evaluator == True):
                 true_pos = true_pos + 1
-            elif (match_dist >= 0.3) and (labels[i] == labels[j]):
-                false_neg = false_neg + 1
-            elif (match_dist < 0.3) and (labels[i] != labels[j]):
+            elif (labels[i] != labels[j]) and (evaluator == True):
                 false_pos = false_pos + 1
-            elif (match_dist > 0.3) and (labels[i] != labels[j]):
+            elif (labels[i] == labels[j]) and (evaluator == False):
+                false_neg = false_neg + 1
+            elif (labels[i] != labels[j]) and (evaluator == False):
                 true_neg = true_neg + 1
 
     pre = true_pos / (true_pos + false_pos)
     rec = true_pos / (true_pos + false_neg)
     f1_score = 2 * ((pre * rec) / (pre + rec))
-    return pre, rec, f1_score, match_dist_arr
+    return pre, rec, f1_score
 
 
 def score_cal(descriptor, cluster_label):
     sample_size = range(len(descriptor))
+    cluster_no = np.nanmax(descriptor)  # Number of clusters
     true_positive = 0
-    true_negative = 0
     total_pos = 0
-    for i in sample_size:
+    no_arr = []
+    model_arr = np.bincount(descriptor)
+    for i in cluster_no:
+        no_arr.clear()
         for j in sample_size:
-            if (cluster_label[i] == cluster_label[j]) and (j > i):
-                total_pos = total_pos + 1
-                if descriptor[i] == descriptor[j]:
-                    true_positive = true_positive + 1
-            elif (cluster_label[i] != cluster_label[j]) and (descriptor[i] != descriptor[j]) and (j > i):
-                true_negative = true_negative + 1
+            if cluster_label[i] == cluster_label[j]:
+                no_arr.append(descriptor[j])  # Real model number of each element in the cluster
+        freq_arr = np.bincount(no_arr)  # Frequency of each model number in the cluster
+        max_val = freq_arr.argmax()  # Most frequent(dominant) model number in the cluster
+        true_positive = true_positive + freq_arr[max_val + 1]  # Number of the most frequent element in the cluster
+        false_negative = false_negative + (model_arr[max_val + 1] - true_positive)
+        total_pos = total_pos + true_positive + np.sum(np.delete(freq_arr, [max_val + 1]))  # Total positives
 
-    total_pair = (len(label_cluster) * (len(label_cluster) - 1)) / 2
-    false_negative = (total_pair - total_pos) - true_negative
     sensitivity = true_positive / total_pos
     specificity = true_positive / (true_positive + false_negative)
     score_f = (2 * (sensitivity * specificity)) / (sensitivity + specificity)
@@ -71,7 +73,6 @@ if __name__ == '__main__':
     descriptor_labels = pandas.read_csv('/home/berkay/Desktop/EndDescriptors/esf/ClusterResult2.csv')
     descriptor_values = descriptor_values.drop(descriptor_values.columns[640], axis=1)
     descriptor_labels = descriptor_labels.iloc[:, 3]
-    distance_pcl = pandas.read_csv('/home/berkay/ObjectRetreivalSegmentedGlobal/build/Distance.csv')
 
     # mds = manifold.MDS(n_components=23, dissimilarity="euclidean")
     # mds_descriptor = mds.fit(descriptor_values).embedding_
@@ -96,20 +97,14 @@ if __name__ == '__main__':
     # n_clusters_ = len(set(label_cluster))
     # print('no. of clusters: ' + repr(n_clusters_))
 
-    descriptor_values = descriptor_values.values
-    descriptor_labels = descriptor_labels.values
-    descriptor_labels = descriptor_labels.astype(int)
-    distance_pcl = distance_pcl.iloc[:, 0]
-    distance_pcl = distance_pcl.values
-    distance_pcl = np.float32(distance_pcl)
+    descriptor_values = descriptor_values.to_numpy()
+    descriptor_labels = descriptor_labels.to_numpy()
+    descriptor_labels = descriptor_labels.astype(np.int64)
 
-    precision, recall, f_score, dist_arr = hist_com(descriptor_values, descriptor_labels)
+    precision, recall, f_score = hist_com(descriptor_values, descriptor_labels)
     # precision, recall, f_score = score_cal(descriptor_labels, label_cluster)
-    dist_arr = np.asarray(dist_arr)
-    result = cv2.compareHist(dist_arr, distance_pcl, 3)
 
-    print('Precision: ' + repr(precision) + '\nRecall: ' + repr(recall) + '\nF-1 Score: ' + repr(f_score) + 'Result: '
-          + repr(result))
+    print('Precision: ' + repr(precision) + '\nRecall: ' + repr(recall) + '\nF-1 Score: ' + repr(f_score))
     print('\nEND')
 
 
