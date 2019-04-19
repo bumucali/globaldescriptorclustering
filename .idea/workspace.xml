@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="25451bc9-f09b-471c-a9f2-9783cc285a3a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/descriptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/descriptor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scoretest.py" beforeDir="false" afterPath="$PROJECT_DIR$/scoretest.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,8 +18,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/descriptor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1800">
-              <caret line="44" lean-forward="true" selection-start-line="44" selection-end-line="44" />
+            <state relative-caret-position="404">
+              <caret line="182" column="51" lean-forward="true" selection-start-line="182" selection-start-column="51" selection-end-line="182" selection-end-column="51" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -53,10 +55,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="280" />
-    <option name="y" value="-4" />
-    <option name="width" value="1400" />
-    <option name="height" value="1028" />
+    <option name="x" value="371" />
+    <option name="y" value="24" />
+    <option name="width" value="1398" />
+    <option name="height" value="999" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -64,7 +66,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -76,9 +77,11 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -239,24 +242,32 @@
       <option name="project" value="LOCAL" />
       <updated>1553015412392</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="confusion matrix added">
+      <created>1553097999279</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1553097999279</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
+    <frame x="64" y="-4" width="1857" height="1085" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18777293" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3291536" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49945414" weight="0.39916405" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.27420998" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49945414" weight="0.3985729" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" weight="0.3291536" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3291536" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.3282365" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3282365" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50054586" side_tool="true" weight="0.39916405" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.3291536" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -319,7 +330,8 @@
     <MESSAGE value="pcl and python code comparison added" />
     <MESSAGE value="changes in the precision and recall algorithms" />
     <MESSAGE value="all functions properly defined(last version before control)" />
-    <option name="LAST_COMMIT_MESSAGE" value="all functions properly defined(last version before control)" />
+    <MESSAGE value="confusion matrix added" />
+    <option name="LAST_COMMIT_MESSAGE" value="confusion matrix added" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -381,15 +393,18 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/scoretest.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="71" lean-forward="true" selection-start-line="7" selection-start-column="71" selection-end-line="7" selection-end-column="71" />
+        <state relative-caret-position="-1118">
+          <caret line="233" column="3" selection-start-line="233" selection-start-column="3" selection-end-line="233" selection-end-column="3" />
+          <folding>
+            <element signature="e#50#63#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/descriptor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1800">
-          <caret line="44" lean-forward="true" selection-start-line="44" selection-end-line="44" />
+        <state relative-caret-position="404">
+          <caret line="182" column="51" lean-forward="true" selection-start-line="182" selection-start-column="51" selection-end-line="182" selection-end-column="51" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>

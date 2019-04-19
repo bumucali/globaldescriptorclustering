@@ -10,13 +10,13 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
-from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
-TEST_SPLIT = 688
-PATH = '/home/berkay/Desktop/EndDescriptors/mppf/39_Classes/'
+PATH = '/home/berkay/Desktop/EndDescriptors/mesf/'
 
 
 def hist_com(comparison_histogram, labels):
@@ -29,8 +29,8 @@ def hist_com(comparison_histogram, labels):
         for j in array_length:
             hist_1 = np.float32(comparison_histogram[i, :])
             hist_2 = np.float32(comparison_histogram[j, :])
-            match_dist = cv2.compareHist(hist_1, hist_2, cv2.HISTCMP_BHATTACHARYYA)
-            if match_dist < 0.28:
+            match_dist = cv2.compareHist(hist_1, hist_2, 5)
+            if match_dist < 0.3:
                 evaluator = True
             else:
                 evaluator = False
@@ -46,7 +46,8 @@ def hist_com(comparison_histogram, labels):
     pre = true_pos / (true_pos + false_pos)
     rec = true_pos / (true_pos + false_neg)
     f1_score_1 = 2 * ((pre * rec) / (pre + rec))
-    return pre, rec, f1_score_1
+    accuracy = (true_neg + true_pos) / (true_neg + true_pos + false_neg + false_pos)
+    return pre, rec, f1_score_1, accuracy
 
 
 def score_cal(descriptor, cluster_label):
@@ -81,10 +82,7 @@ def support_vector(values, labels):
     # data_set = np.random.shuffle(data_set)
     string_svm = 'confusion_svm.csv'
 
-    x_train = values[:TEST_SPLIT, :]
-    y_train = labels[:TEST_SPLIT]
-    x_test = values[TEST_SPLIT:, :]
-    y_test = labels[TEST_SPLIT:]
+    x_train, x_test, y_train, y_test = train_test_split(values, labels, test_size=0.3, random_state=0)
     param_grid = {'C': [0.01, 0.1, 1, 10, 100], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 10]}
     svm_grid = GridSearchCV(SVC(), param_grid, verbose=1, cv=3, iid=True)
 
@@ -93,64 +91,60 @@ def support_vector(values, labels):
     y_prediction = svm_grid.predict(x_test)
     print("Best Parameters:\n", svm_grid.best_params_)
     print("Best Estimators:\n", svm_grid.best_estimator_)
-    print(accuracy_score(y_test, y_prediction))
-    precision_1 = precision_score(y_test, y_prediction, average='micro')
-    recall_1 = recall_score(y_test, y_prediction, average='micro')
-    f_score_1 = f1_score(y_test, y_prediction, average='micro')
+    precision_1 = precision_score(y_test, y_prediction, average='macro')
+    recall_1 = recall_score(y_test, y_prediction, average='macro')
+    f_score_1 = 2 * (precision_1 * recall_1) / (precision_1 + recall_1)
+    accuracy_1 = accuracy_score(y_test, y_prediction)
     conf_arr = confusion_matrix(y_test, y_prediction)
     np.savetxt(PATH + string_svm, conf_arr, delimiter=',')
 
-    return precision_1, recall_1, f_score_1
+    return precision_1, recall_1, f_score_1, accuracy_1
 
 
 def decision_tree(x_values, y_labels):
     string_tree = 'confusion_tree.csv'
 
-    x_train = x_values[:TEST_SPLIT, :]
-    y_train = y_labels[:TEST_SPLIT]
-    x_test = x_values[TEST_SPLIT:, :]
-    y_test = y_labels[TEST_SPLIT:]
+    x_train, x_test, y_train, y_test = train_test_split(x_values, y_labels, test_size=0.3, random_state=0)
     tree_classifier = DecisionTreeClassifier(criterion='gini')
 
     tree_classifier.fit(x_train, y_train)
     y_prediction = tree_classifier.predict(x_test)
-    print(accuracy_score(y_test, y_prediction))
-    precision_tree = precision_score(y_test, y_prediction, average='micro')
-    recall_tree = recall_score(y_test, y_prediction, average='micro')
-    f_score_tree = f1_score(y_test, y_prediction, average='micro')
+    precision_tree = precision_score(y_test, y_prediction, average='macro')
+    recall_tree = recall_score(y_test, y_prediction, average='macro')
+    f_score_tree = 2 * (recall_tree * precision_tree) / (precision_tree + recall_tree)
+    acc_tree = accuracy_score(y_test, y_prediction)
     conf_mat = confusion_matrix(y_test, y_prediction)
     np.savetxt(PATH + string_tree, conf_mat, delimiter=',')
 
-    return precision_tree, recall_tree, f_score_tree
+    return precision_tree, recall_tree, f_score_tree, acc_tree
 
 
 def random_forest_calc(values_x, labels_y):
     string_forest = 'confusion_forest.csv'
 
-    x_training = values_x[:TEST_SPLIT, :]
-    y_training = labels_y[:TEST_SPLIT]
-    x_testing = values_x[TEST_SPLIT:, :]
-    y_testing = labels_y[TEST_SPLIT:]
+    x_training, x_testing, y_training, y_testing = train_test_split(values_x, labels_y, test_size=0.3, random_state=0)
     random_clf = RandomForestClassifier(n_estimators=100)
 
     random_clf.fit(x_training, y_training)
     y_pred = random_clf.predict(x_testing)
-    print(accuracy_score(y_testing, y_pred))
-    precision_rf = precision_score(y_testing, y_pred, average='micro')
-    recall_rf = recall_score(y_testing, y_pred, average='micro')
-    f_score_rf = f1_score(y_testing, y_pred, average='micro')
+    print()
+    precision_rf = precision_score(y_testing, y_pred, average='macro')
+    recall_rf = recall_score(y_testing, y_pred, average='macro')
+    f_score_rf = 2 * (precision_rf * recall_rf) / (precision_rf + recall_rf)
+    acc_rf = accuracy_score(y_testing, y_pred)
     confusion_arr = confusion_matrix(y_testing, y_pred)
     np.savetxt(PATH + string_forest, confusion_arr, delimiter=',')
 
-    return precision_rf, recall_rf, f_score_rf
+    return precision_rf, recall_rf, f_score_rf, acc_rf
 
 
 def pca_calculation(desc_value):
     pca = PCA(n_components=39)
-    ratio = pca.fit(desc_value.T).explained_variance_ratio_
+    desc_value_norm = MinMaxScaler().fit(desc_value).transform(desc_value)
+    ratio = pca.fit(desc_value_norm.T).explained_variance_ratio_
     cum_ratio = sum(ratio)
-    components = pca.fit(desc_value.T).components_
-    components = np.abs(components.T)
+    components = pca.fit(desc_value_norm.T).components_
+    components = components.T
     print('explained variance ratio: ' + repr(ratio))
     print('\ncumulative explained variance ratio: ' + repr(cum_ratio))
 
@@ -166,7 +160,7 @@ def mds_calculation(descriptors):
 
 
 def k_clustering(value_to_cluster):
-    k_means = KMeans(n_clusters=39)
+    k_means = KMeans(n_clusters=10)
     label_from_cluster = k_means.fit(value_to_cluster).labels_
 
     return label_from_cluster
@@ -187,7 +181,7 @@ if __name__ == '__main__':
 
     descriptor_values = pandas.read_csv(full_path)
     descriptor_labels = descriptor_values[['Label']]
-    descriptor_values = descriptor_values.drop(descriptor_values.columns[384], axis=1)
+    descriptor_values = descriptor_values.drop(descriptor_values.columns[768], axis=1)
     print(descriptor_values.head(2))
 
     descriptor_values = descriptor_values.to_numpy()
@@ -195,20 +189,23 @@ if __name__ == '__main__':
     descriptor_labels = descriptor_labels.astype(np.int64)
     descriptor_labels = descriptor_labels.ravel()
 
-    # mds_values = mds_calculation(descriptor_values)
+    #mds_values = mds_calculation(descriptor_values)
 
-    # pca_comp = pca_calculation(descriptor_values)
+    pca_comp = pca_calculation(descriptor_values)
+    pca_comp = MinMaxScaler().fit(pca_comp).transform(pca_comp)
 
     # label_cluster = k_clustering(pca_comp)
 
     # label_cluster = agg_clustering(pca_comp)
 
-    # precision, recall, f_score = hist_com(mds_values, descriptor_labels)
+    #precision, recall, f_score, accuracy = hist_com(descriptor_values, descriptor_labels)
     # precision, recall, f_score = score_cal(descriptor_labels, label_cluster)
 
-    # precision, recall, f_score = support_vector(descriptor_values, descriptor_labels)
-    # precision, recall, f_score = decision_tree(descriptor_values, descriptor_labels)
-    precision, recall, f_score = random_forest_calc(descriptor_values, descriptor_labels)
+    precision, recall, f_score, accuracy = support_vector(pca_comp, descriptor_labels)
+    #precision, recall, f_score, accuracy = decision_tree(mds_values, descriptor_labels)
+    #precision, recall, f_score, accuracy = random_forest_calc(mds_values, descriptor_labels)
 
-    print('Precision: ' + repr(precision) + '\nRecall: ' + repr(recall) + '\nF-1 Score: ' + repr(f_score))
+    print('Precision: ' + repr(precision) + '\nRecall: ' + repr(recall) + '\nF-1 Score: ' + repr(f_score) +
+         '\nAccuracy: ' + repr(accuracy))
     print('\nEND')
+
