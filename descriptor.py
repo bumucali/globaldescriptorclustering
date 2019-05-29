@@ -20,6 +20,8 @@ PATH = '/home/berkay/Desktop/EndDescriptors/mesf/'
 
 
 def hist_com(comparison_histogram, labels):
+    # Compares two histograms and their corresponding labels with respect to KL-Divergence
+    
     array_length = range(len(descriptor_labels))
     true_pos = 0
     true_neg = 0
@@ -51,6 +53,8 @@ def hist_com(comparison_histogram, labels):
 
 
 def score_cal(descriptor, cluster_label):
+    #  Precision, recall and F1-score calculator for the histogram comparison
+    
     sample_size = range(len(descriptor))
     cluster_no = np.nanmax(descriptor)  # Number of clusters
     true_positive = 0
@@ -78,15 +82,13 @@ def score_cal(descriptor, cluster_label):
 
 
 def support_vector(values, labels):
-    # data_set = np.concatenate(descriptor_values, descriptor_labels, axis=1)
-    # data_set = np.random.shuffle(data_set)
+    # Support vector machine
+    
     string_svm = 'confusion_svm.csv'
-
     x_train, x_test, y_train, y_test = train_test_split(values, labels, test_size=0.3, random_state=0)
     param_grid = {'C': [0.01, 0.1, 1, 10, 100], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 10]}
     svm_grid = GridSearchCV(SVC(), param_grid, verbose=1, cv=3, iid=True)
 
-    # svm = SVC(C=1.0, kernel='rbf', gamma='auto')
     svm_grid.fit(x_train, y_train)
     y_prediction = svm_grid.predict(x_test)
     print("Best Parameters:\n", svm_grid.best_params_)
@@ -189,21 +191,21 @@ if __name__ == '__main__':
     descriptor_labels = descriptor_labels.astype(np.int64)
     descriptor_labels = descriptor_labels.ravel()
 
-    #mds_values = mds_calculation(descriptor_values)
+    # mds_values = mds_calculation(descriptor_values)
 
-    pca_comp = pca_calculation(descriptor_values)
-    pca_comp = MinMaxScaler().fit(pca_comp).transform(pca_comp)
+    # pca_comp = pca_calculation(descriptor_values)
+    # pca_comp = MinMaxScaler().fit(pca_comp).transform(pca_comp)
 
     # label_cluster = k_clustering(pca_comp)
 
     # label_cluster = agg_clustering(pca_comp)
 
-    #precision, recall, f_score, accuracy = hist_com(descriptor_values, descriptor_labels)
+    # precision, recall, f_score, accuracy = hist_com(descriptor_values, descriptor_labels)
     # precision, recall, f_score = score_cal(descriptor_labels, label_cluster)
 
-    precision, recall, f_score, accuracy = support_vector(pca_comp, descriptor_labels)
-    #precision, recall, f_score, accuracy = decision_tree(mds_values, descriptor_labels)
-    #precision, recall, f_score, accuracy = random_forest_calc(mds_values, descriptor_labels)
+    # precision, recall, f_score, accuracy = support_vector(pca_comp, descriptor_labels)
+    # precision, recall, f_score, accuracy = decision_tree(mds_values, descriptor_labels)
+    # precision, recall, f_score, accuracy = random_forest_calc(mds_values, descriptor_labels)
 
     print('Precision: ' + repr(precision) + '\nRecall: ' + repr(recall) + '\nF-1 Score: ' + repr(f_score) +
          '\nAccuracy: ' + repr(accuracy))
